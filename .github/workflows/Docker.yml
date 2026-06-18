@@ -42,9 +42,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Detect if Harbor is configured (secrets not available in `if:` directly)
+      - name: Check Harbor configuration
+        id: harbor-check
+        env:
+          HARBOR_URL: ${{ secrets.HARBOR_URL }}
+        run: |
+          if [ -n "$HARBOR_URL" ]; then
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          fi
+
       # Login to Harbor only if configured
       - name: Login to Harbor
-        if: ${{ secrets.HARBOR_URL != '' }}
+        if: steps.harbor-check.outputs.configured == 'true'
         uses: docker/login-action@v2
         with:
           registry: ${{ secrets.HARBOR_URL }}
@@ -74,7 +86,7 @@ jobs:
 
       # Optional: tag & push existing multi-arch image to Harbor
       - name: Push to Harbor
-        if: ${{ secrets.HARBOR_URL != '' }}
+        if: steps.harbor-check.outputs.configured == 'true'
         env:
           HARBOR_URL: ${{ secrets.HARBOR_URL }}
           SHA: ${{ github.sha }}
