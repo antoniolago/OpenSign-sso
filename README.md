@@ -1,6 +1,23 @@
 Fork note: SSO is a security feature and we already have too many good softwares in the SSO Tax Wall of SHAME https://sso.tax/ 
 This is for specific purposes and I don't promise to keep it up to date!
 
+## 🔐 SSO / OIDC Login
+
+This fork adds a generic OpenID Connect (OIDC) SSO login flow — works with **Keycloak, Azure AD, Auth0, Google, Okta, or any OIDC-compatible provider**.
+
+The login page shows a **"Login with SSO"** button alongside the regular form (only when configured).
+
+### Quick config
+
+| Variable | Description |
+|---|---|
+| `OIDC_ISSUER_URL` / `REACT_APP_OIDC_ISSUER_URL` | OIDC issuer (e.g. `https://accounts.google.com`) |
+| `REACT_APP_OIDC_CLIENT_ID` | Client ID registered with the provider |
+
+**Redirect URI**: `https://yourdomain.com/oidc/callback` | **Scopes**: `openid profile email`
+
+No SSO configured? The button is hidden — zero impact.
+
 <h1 align="center"><a href='https://www.opensignlabs.com'><img src=https://github.com/OpenSignLabs/OpenSign/assets/5486116/e518cc9c-5de3-47da-950b-f93336b9f14e></a>
 </h1><div align="center">
 
