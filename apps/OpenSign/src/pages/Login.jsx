@@ -26,11 +26,15 @@ import SelectLanguage from "../components/pdf/SelectLanguage";
 // Configure via env vars (build-time) or RUNTIME_ENV (runtime via entrypoint.sh):
 //   REACT_APP_OIDC_ISSUER_URL   — e.g. https://accounts.google.com
 //   REACT_APP_OIDC_CLIENT_ID    — client id registered with the OIDC provider
+//   REACT_APP_OIDC_BUTTON_TEXT  — custom text for the SSO login button (optional)
 const OIDC_ISSUER = process.env.REACT_APP_OIDC_ISSUER_URL
   || window.RUNTIME_ENV?.REACT_APP_OIDC_ISSUER_URL
   || "";
 const OIDC_CLIENT_ID = process.env.REACT_APP_OIDC_CLIENT_ID
   || window.RUNTIME_ENV?.REACT_APP_OIDC_CLIENT_ID
+  || "";
+const OIDC_BUTTON_TEXT = process.env.REACT_APP_OIDC_BUTTON_TEXT
+  || window.RUNTIME_ENV?.REACT_APP_OIDC_BUTTON_TEXT
   || "";
 const OIDC_REDIRECT_URI = `${window.location.origin}/oidc/callback`;
 
@@ -575,7 +579,7 @@ function Login() {
                             window.location.href = oidcLoginUrl(challenge);
                           }}
                         >
-                          {state.thirdpartyLoader ? t("loading") : t("login-sso")}
+                          {state.thirdpartyLoader ? t("loading") : (OIDC_BUTTON_TEXT || t("login-sso"))}
                         </button>
                       </>
                     )}
