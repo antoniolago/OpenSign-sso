@@ -104,6 +104,18 @@ function OidcCallback() {
         authData: { id: email.toLowerCase(), access_token },
       });
 
+      // Create/update the extended user profile (contracts_Users) via cloud function.
+      // This maps OIDC claims (email, name, groups) to OpenSign roles.
+      // All configurable via env vars — see OIDC_CLAIM_*, OIDC_ADMIN_GROUP, etc.
+      try {
+        await Parse.Cloud.run("oidcSetupUser", {
+          id_token: id_token || "",
+          access_token,
+        });
+      } catch (setupErr) {
+        console.warn("OIDC profile setup warning (non-fatal):", setupErr.message);
+      }
+
       // Post-login flow (mirrors thirdpartyLoginfn from Login.jsx)
       const sessionToken = user.getSessionToken();
       window.localStorage.setItem("accesstoken", sessionToken);

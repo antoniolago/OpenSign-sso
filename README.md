@@ -15,6 +15,12 @@ The login page shows a **"Login with SSO"** button alongside the regular form (o
 | `REACT_APP_OIDC_CLIENT_ID` | Client ID registered with the provider |
 | `REACT_APP_OIDC_BUTTON_TEXT` | Custom SSO button label (optional, falls back to translation) |
 | `REACT_APP_OIDC_AUTO_REDIRECT` | Set to `true` to skip login page and redirect immediately to the OIDC provider |
+| `OIDC_CLAIM_EMAIL` | id_token claim for email (default: `email`) |
+| `OIDC_CLAIM_NAME` | id_token claim for display name (default: `name`) |
+| `OIDC_CLAIM_GROUPS` | id_token claim for roles/groups (default: `groups`) |
+| `OIDC_ADMIN_GROUP` | Group value that grants admin role (default: `admin`) |
+| `OIDC_ADMIN_ROLE` | UserRole assigned to admins (default: `contracts_Admin`) |
+| `OIDC_DEFAULT_ROLE` | UserRole for regular users (default: `contracts_User`) |
 
 **Redirect URI**: `https://yourdomain.com/oidc/callback` | **Scopes**: `openid profile email`
 
