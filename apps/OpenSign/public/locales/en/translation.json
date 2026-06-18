@@ -4,7 +4,7 @@
   "sandbox-news": "This is a sandbox environment. Please do not use it for production purposes.",
   "create-account": "Create account",
   "login": "Login",
-"login-sso": "Login with SSO",
+  "login-sso": "Login with SSO",
   "language": "Language",
   "dark-mode": "Dark mode",
   "name": "Name",
