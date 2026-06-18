@@ -13,6 +13,8 @@ The login page shows a **"Login with SSO"** button alongside the regular form (o
 |---|---|
 | `OIDC_ISSUER_URL` / `REACT_APP_OIDC_ISSUER_URL` | OIDC issuer (e.g. `https://accounts.google.com`) |
 | `REACT_APP_OIDC_CLIENT_ID` | Client ID registered with the provider |
+| `REACT_APP_OIDC_BUTTON_TEXT` | Custom SSO button label (optional, falls back to translation) |
+| `REACT_APP_OIDC_AUTO_REDIRECT` | Set to `true` to skip login page and redirect immediately to the OIDC provider |
 
 **Redirect URI**: `https://yourdomain.com/oidc/callback` | **Scopes**: `openid profile email`
 

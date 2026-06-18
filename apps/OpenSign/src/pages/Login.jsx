@@ -37,6 +37,17 @@ const OIDC_BUTTON_TEXT = process.env.REACT_APP_OIDC_BUTTON_TEXT
   || window.RUNTIME_ENV?.REACT_APP_OIDC_BUTTON_TEXT
   || "";
 const OIDC_REDIRECT_URI = `${window.location.origin}/oidc/callback`;
+const OIDC_AUTO_REDIRECT = (process.env.REACT_APP_OIDC_AUTO_REDIRECT
+  || window.RUNTIME_ENV?.REACT_APP_OIDC_AUTO_REDIRECT
+  || "").toLowerCase() === "true";
+
+function triggerOidcRedirect() {
+  const verifier = generateCodeVerifier();
+  sessionStorage.setItem("oidc_code_verifier", verifier);
+  generateCodeChallenge(verifier).then((challenge) => {
+    window.location.href = oidcLoginUrl(challenge);
+  });
+}
 
 function generateCodeVerifier() {
   const array = new Uint8Array(32);
@@ -131,6 +142,16 @@ function Login() {
       setImage(appInfo?.applogo || undefined);
     }
     dispatch(fetchAppInfo());
+    // Auto-redirect to OIDC provider (bypass login page entirely)
+    if (OIDC_AUTO_REDIRECT && OIDC_ISSUER && OIDC_CLIENT_ID) {
+      if (localStorage.getItem("accesstoken")) {
+        setState({ ...state, loading: true });
+        GetLoginData();
+      } else {
+        triggerOidcRedirect();
+      }
+      return;
+    }
     if (localStorage.getItem("accesstoken")) {
       setState({ ...state, loading: true });
       GetLoginData();
@@ -571,12 +592,9 @@ function Login() {
                           type="button"
                           className="op-btn op-btn-outline w-full text-xs font-semibold gap-2"
                           disabled={state.thirdpartyLoader}
-                          onClick={async () => {
+                          onClick={() => {
                             setThirdpartyLoader(true);
-                            const verifier = generateCodeVerifier();
-                            sessionStorage.setItem("oidc_code_verifier", verifier);
-                            const challenge = await generateCodeChallenge(verifier);
-                            window.location.href = oidcLoginUrl(challenge);
+                            triggerOidcRedirect();
                           }}
                         >
                           {state.thirdpartyLoader ? t("loading") : (OIDC_BUTTON_TEXT || t("login-sso"))}
