@@ -4,6 +4,7 @@
   "sandbox-news": "Dies ist eine Sandbox-Umgebung. Bitte nicht für produktive Zwecke verwenden.",
   "create-account": "Konto erstellen",
   "login": "Anmelden",
+  "login-sso": "Mit SSO anmelden",
   "language": "Sprache",
   "dark-mode": "Dunkelmodus",
   "name": "Name",

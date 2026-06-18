@@ -1,9 +1,9 @@
 name: ci
 
-# 👇 add this block
 permissions:
-  contents: read        # allow checkout & metadata-action to read repo
-  id-token: write       # needed by docker/metadata-action v4
+  contents: read
+  id-token: write
+  packages: write
 
 on:
   push:
@@ -17,42 +17,50 @@ jobs:
     strategy:
       matrix:
         include:
-          - image: opensign/opensign
-            dockerfile: apps/OpenSign/Dockerhubfile
-          - image: opensign/opensignserver
-            dockerfile: apps/OpenSignServer/Dockerhubfile
+          - image: ghcr.io/antoniolago/opensign-client
+            dockerfile: apps/OpenSign/Dockerfile
+          - image: ghcr.io/antoniolago/opensign-server
+            dockerfile: apps/OpenSignServer/Dockerfile
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
 
-      # 👇 Enable emulation so we can build for arm64 on amd64 runners
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
         with:
           platforms: linux/amd64,linux/arm64
 
-      # 👇 Enable Buildx for multi-arch builds
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
 
-      - name: Login to Docker Hub
+      # Always login to GHCR
+      - name: Login to GitHub Container Registry
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Login to Harbor only if configured
+      - name: Login to Harbor
+        if: ${{ secrets.HARBOR_URL != '' }}
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.HARBOR_URL }}
+          username: ${{ secrets.HARBOR_USERNAME }}
+          password: ${{ secrets.HARBOR_TOKEN }}
 
       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v4
         with:
           images: ${{ matrix.image }}
-
-      - name: Debug - List files opensign
-        run: ls -R apps/OpenSign/  # Adjust the path as needed
-
-      - name: Debug - List files opensignserver
-        run: ls -R apps/OpenSignServer/  # Adjust the path as needed  
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=semver,pattern={{version}}
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and push (multi-arch)
         uses: docker/build-push-action@v4
@@ -60,7 +68,21 @@ jobs:
           context: .
           file: ${{ matrix.dockerfile }}
           push: true
-          # 👇 Build for both AMD64 & ARM64
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+
+      # Optional: tag & push existing multi-arch image to Harbor
+      - name: Push to Harbor
+        if: ${{ secrets.HARBOR_URL != '' }}
+        env:
+          HARBOR_URL: ${{ secrets.HARBOR_URL }}
+          SHA: ${{ github.sha }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          HARBOR_BASE="$HARBOR_URL/${{ matrix.image }}"
+          docker buildx imagetools create \
+            --tag "$HARBOR_BASE:latest" \
+            --tag "$HARBOR_BASE:${BRANCH}" \
+            --tag "$HARBOR_BASE:${BRANCH}-${SHA::7}" \
+            "${{ steps.meta.outputs.tags }}"

@@ -4,6 +4,7 @@
   "sandbox-news": "Questo è un ambiente sandbox. Si prega di non utilizzarlo per scopi di produzione.",
   "create-account": "Crea Account",
   "login": "Accedi",
+  "login-sso": "Accedi con SSO",
   "language": "Lingua",
   "dark-mode": "Modalità scura",
   "name": "Nome",

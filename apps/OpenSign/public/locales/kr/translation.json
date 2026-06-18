@@ -4,6 +4,7 @@
   "sandbox-news": "이것은 샌드박스 모드입니다. 운영 환경에서는 사용하지 마십시오.",
   "create-account": "계정 생성",
   "login": "로그인",
+  "login-sso": "SSO로 로그인",
   "language": "언어",
   "dark-mode": "다크 모드",
   "name": "이름",

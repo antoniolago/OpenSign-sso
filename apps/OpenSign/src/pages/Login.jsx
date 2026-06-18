@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Parse from "parse";
 import { useDispatch } from "react-redux";
 import axios from "axios";
@@ -21,6 +21,46 @@ import {
 import Loader from "../primitives/Loader";
 import { useTranslation } from "react-i18next";
 import SelectLanguage from "../components/pdf/SelectLanguage";
+
+// ---- Generic OIDC SSO helpers ----
+// Configure via env vars (build-time) or RUNTIME_ENV (runtime via entrypoint.sh):
+//   REACT_APP_OIDC_ISSUER_URL   — e.g. https://accounts.google.com
+//   REACT_APP_OIDC_CLIENT_ID    — client id registered with the OIDC provider
+const OIDC_ISSUER = process.env.REACT_APP_OIDC_ISSUER_URL
+  || window.RUNTIME_ENV?.REACT_APP_OIDC_ISSUER_URL
+  || "";
+const OIDC_CLIENT_ID = process.env.REACT_APP_OIDC_CLIENT_ID
+  || window.RUNTIME_ENV?.REACT_APP_OIDC_CLIENT_ID
+  || "";
+const OIDC_REDIRECT_URI = `${window.location.origin}/oidc/callback`;
+
+function generateCodeVerifier() {
+  const array = new Uint8Array(32);
+  crypto.getRandomValues(array);
+  return btoa(String.fromCharCode(...array))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+async function generateCodeChallenge(verifier) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(verifier);
+  const digest = await crypto.subtle.digest('SHA-256', data);
+  return btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function oidcLoginUrl(codeChallenge) {
+  const params = new URLSearchParams({
+    client_id: OIDC_CLIENT_ID,
+    redirect_uri: OIDC_REDIRECT_URI,
+    response_type: 'code',
+    scope: 'openid profile email',
+    code_challenge: codeChallenge,
+    code_challenge_method: 'S256',
+  });
+  return `${OIDC_ISSUER}/protocol/openid-connect/auth?${params}`;
+}
+// ---- end OIDC helpers ----
 
 function Login() {
   const appName =
@@ -517,6 +557,28 @@ function Login() {
                         {state.loading ? t("loading") : t("login")}
                       </button>
                     </div>
+                    {/* OIDC SSO divider + button — only shown when OIDC_ISSUER is configured */}
+                    {OIDC_ISSUER && OIDC_CLIENT_ID && (
+                      <>
+                        <div className="divider text-xs text-gray-400 my-3">
+                          {t("or")}
+                        </div>
+                        <button
+                          type="button"
+                          className="op-btn op-btn-outline w-full text-xs font-semibold gap-2"
+                          disabled={state.thirdpartyLoader}
+                          onClick={async () => {
+                            setThirdpartyLoader(true);
+                            const verifier = generateCodeVerifier();
+                            sessionStorage.setItem("oidc_code_verifier", verifier);
+                            const challenge = await generateCodeChallenge(verifier);
+                            window.location.href = oidcLoginUrl(challenge);
+                          }}
+                        >
+                          {state.thirdpartyLoader ? t("loading") : t("login-sso")}
+                        </button>
+                      </>
+                    )}
                   </form>
                 </div>
                 {width >= 768 && (

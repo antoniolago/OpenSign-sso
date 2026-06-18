@@ -34,6 +34,7 @@ const UpdateExistUserAdmin = lazyWithRetry(
 );
 const Preferences = lazyWithRetry(() => import("./pages/Preferences"));
 const Login = lazyWithRetry(() => import("./pages/Login"));
+const OidcCallback = lazyWithRetry(() => import("./pages/OidcCallback"));
 const VerifyDocument = lazyWithRetry(() => import("./pages/VerifyDocument"));
 const EmailBuilder = lazyWithRetry(() => import("./pages/EmailBuilder"));
 
@@ -140,6 +141,7 @@ function App() {
             </Route>
             <Route path="/success" element={<DocSuccessPage />} />
             <Route path="/emailbuilder" element={<EmailBuilder />} />
+            <Route path="/oidc/callback" element={<Lazy Page={OidcCallback} />} />
             <Route path="*" element={<PageNotFound />} />
           </Routes>
         </BrowserRouter>
