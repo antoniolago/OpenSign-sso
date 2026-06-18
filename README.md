@@ -1,3 +1,6 @@
+Fork note: SSO is a security feature and we already have too many good softwares in the SSO Tax Wall of SHAME https://sso.tax/ 
+This is for specific purposes and I don't promise to keep it up to date!
+
 <h1 align="center"><a href='https://www.opensignlabs.com'><img src=https://github.com/OpenSignLabs/OpenSign/assets/5486116/e518cc9c-5de3-47da-950b-f93336b9f14e></a>
 </h1><div align="center">
 
