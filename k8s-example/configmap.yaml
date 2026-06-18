@@ -1,0 +1,42 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opensign-config
+  namespace: opensign
+data:
+  # --- Frontend ---
+  PUBLIC_URL: "https://opensign.example.com"
+  GENERATE_SOURCEMAP: "false"
+  REACT_APP_SERVERURL: "https://opensign.example.com/api/app"
+  REACT_APP_APPID: "opensign"
+  REACT_APP_GTM: ""
+
+  # --- Backend ---
+  APP_ID: "opensign"
+  appName: "open_sign_server"
+  PARSE_MOUNT: "/app"
+  SERVER_URL: "https://opensign.example.com/api/app"
+
+  # --- Storage (local filesystem) ---
+  USE_LOCAL: "TRUE"
+
+  # --- Email (set SMTP_ENABLE=true and fill secrets, or use Mailgun) ---
+  SMTP_ENABLE: "false"
+  MAILGUN_API_KEY: ""
+  MAILGUN_DOMAIN: ""
+  MAILGUN_SENDER: ""
+
+  # --- OIDC SSO (frontend — see README for details) ---
+  REACT_APP_OIDC_ISSUER_URL: "https://id.example.com/realms/myrealm"
+  REACT_APP_OIDC_CLIENT_ID: "opensign"
+  # REACT_APP_OIDC_BUTTON_TEXT: "Sign in with SSO"
+  # REACT_APP_OIDC_AUTO_REDIRECT: "true"
+
+  # --- OIDC claim mapping (backend) ---
+  OIDC_CLAIM_EMAIL: "email"
+  OIDC_CLAIM_NAME: "name"
+  OIDC_CLAIM_GROUPS: "groups"
+  OIDC_ADMIN_GROUP: "admin"
+  OIDC_ADMIN_ROLE: "contracts_Admin"
+  OIDC_DEFAULT_ROLE: "contracts_User"
+  OIDC_ISSUER_URL: "https://id.example.com/realms/myrealm"

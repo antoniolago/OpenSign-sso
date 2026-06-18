@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensign-server
+  namespace: opensign
+  labels:
+    app.kubernetes.io/name: opensign-server
+    app.kubernetes.io/component: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: opensign-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: opensign-server
+        app.kubernetes.io/component: server
+    spec:
+      containers:
+        - name: server
+          image: ghcr.io/antoniolago/opensign-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+              name: http
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: SERVER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: SERVER_URL
+            - name: PUBLIC_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: PUBLIC_URL
+            - name: APP_ID
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: APP_ID
+            - name: appName
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: appName
+            - name: PARSE_MOUNT
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: PARSE_MOUNT
+            - name: USE_LOCAL
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: USE_LOCAL
+            - name: MASTER_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: opensign-secrets
+                  key: MASTER_KEY
+            - name: MONGODB_URI
+              valueFrom:
+                secretKeyRef:
+                  name: opensign-secrets
+                  key: MONGODB_URI
+            - name: PFX_BASE64
+              valueFrom:
+                secretKeyRef:
+                  name: opensign-secrets
+                  key: PFX_BASE64
+            - name: PASS_PHRASE
+              valueFrom:
+                secretKeyRef:
+                  name: opensign-secrets
+                  key: PASS_PHRASE
+            - name: OIDC_ISSUER_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: OIDC_ISSUER_URL
+          volumeMounts:
+            - name: opensign-files
+              mountPath: /usr/src/app/files
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+      volumes:
+        - name: opensign-files
+          persistentVolumeClaim:
+            claimName: opensign-files

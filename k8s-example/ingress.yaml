@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: opensign
+  namespace: opensign
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: opensign.example.com
+      http:
+        paths:
+          # API routes go directly to the server
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: opensign-server
+                port:
+                  number: 8080
+          # Everything else goes to the client (React SPA)
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: opensign-client
+                port:
+                  number: 3000

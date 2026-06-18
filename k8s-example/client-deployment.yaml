@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensign-client
+  namespace: opensign
+  labels:
+    app.kubernetes.io/name: opensign-client
+    app.kubernetes.io/component: client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: opensign-client
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: opensign-client
+        app.kubernetes.io/component: client
+    spec:
+      containers:
+        - name: client
+          image: ghcr.io/antoniolago/opensign-client:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              name: http
+          env:
+            - name: PUBLIC_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: PUBLIC_URL
+            - name: GENERATE_SOURCEMAP
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: GENERATE_SOURCEMAP
+            - name: REACT_APP_SERVERURL
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: REACT_APP_SERVERURL
+            - name: REACT_APP_APPID
+              valueFrom:
+                configMapKeyRef:
+                  name: opensign-config
+                  key: REACT_APP_APPID
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              cpu: 300m
+              memory: 256Mi

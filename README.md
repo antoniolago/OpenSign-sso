@@ -1,5 +1,5 @@
 Fork note: SSO is a security feature and we already have too many good softwares in the SSO Tax Wall of SHAME https://sso.tax/ 
-This is for specific purposes and I don't promise to keep it up to date!
+This fork exists for specific needs. It is **not tested for backwards compatibility with existing OpenSign instances** — do NOT deploy into an existing production database without thorough validation. No guarantees, no liability, use at your own risk.
 
 ## 🔐 SSO / OIDC Login
 
